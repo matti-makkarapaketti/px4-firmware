@@ -84,6 +84,7 @@ if (NOT DEFINED CONFIG_BUILD_FLAT AND "${PX4_PLATFORM}" MATCHES "nuttx")
 		${PX4_SOURCE_DIR}/platforms/posix/src/px4/common/print_load.cpp
 		${PX4_SOURCE_DIR}/platforms/posix/src/px4/common/cpuload.cpp
 		usr_reset.cpp
+		usr_hrt.cpp
 	)
 
 	target_link_libraries(${PX4_USER_LAYER}
@@ -95,6 +96,12 @@ if (NOT DEFINED CONFIG_BUILD_FLAT AND "${PX4_PLATFORM}" MATCHES "nuttx")
 	)
 
 	add_dependencies(${PX4_USER_LAYER} prebuild_targets)
+
+	add_library(px4_board_ctrl
+		board_ctrl.c
+	)
+
+	add_dependencies(px4_board_ctrl nuttx_context px4_kernel_builtin_list_target)
 
 	add_library(px4_userspace_init
 		px4_userspace_init.cpp
