@@ -115,3 +115,7 @@ px4_add_module(
 if(PX4_TESTING)
 	add_subdirectory(mavlink_tests)
 endif()
+
+if(CONFIG_NET AND "${PX4_PLATFORM}" MATCHES "nuttx")
+	target_link_libraries(modules__mavlink PRIVATE nuttx_apps) # netlib_get_ipv4netmask
+endif()
