@@ -11,6 +11,7 @@ python3 $jinja_gen_script $sdf_jinja_template $workdir \
 	--serial_baudrate 2000000 \
 	--hil_mode 1 \
 	--lockstep 0 \
+	--rplidar_topic scan_sim \
 	--output-file /tmp/ssrc_fog_x_hitl.sdf
 
 echo "Spawning ssrc_fog_x_hitl"
