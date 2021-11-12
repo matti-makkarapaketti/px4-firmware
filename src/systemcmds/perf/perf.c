@@ -79,3 +79,14 @@ int perf_main(int argc, char *argv[])
 }
 
 
+#if defined (__PX4_NUTTX) && !defined (CONFIG_BUILD_FLAT)
+
+// NuttX memory protected build
+
+int
+kperf_main(int argc, char *argv[])
+{
+	return perf_main(argc, argv);
+}
+
+#endif
