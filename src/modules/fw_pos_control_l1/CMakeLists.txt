@@ -46,4 +46,5 @@ px4_add_module(
 		landing_slope
 		runway_takeoff
 		tecs
+		motion_planning
 	)
