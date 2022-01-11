@@ -41,6 +41,35 @@ jobs:
           popd
           docker push localhost:5000/tiiuae/px4-sitl-artifacts:latest
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ghcr.io/tiiuae/tii-px4-sitl
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha
+            type=raw,value=latest
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GCR_PACKAGES_USER }}
+          password: ${{ secrets.GCR_PACKAGES_TOKEN }}
+
+      - name: Build tii-px4-sitl image and push
+        uses: docker/build-push-action@v2
+        with:
+          context: px4-firmware/
+          file: ./px4-firmware/packaging/Dockerfile.docker
+          pull: true
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          build-args: |
+            FROM_ARTIFACTS=localhost:5000/tiiuae/px4-sitl-artifacts:latest
+
       - name: Install jfrog CLI tool
         env:
           JFROG_CLI_URL: https://ssrc.jfrog.io/artifactory/ssrc-gen-public-remote-cache/tools/jfrog/jfrog-1.45.2.tar.gz
@@ -104,32 +133,3 @@ jobs:
           jfrog rt cp --flat \
                       "$ARTIFACTORY_GEN_REPO/builds/gazebo-data/$pkg_name" \
                       "$ARTIFACTORY_GEN_REPO/builds/gazebo-data/latest/px4_gazebo_data.tar.gz"
-
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          images: ghcr.io/tiiuae/tii-px4-sitl
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=sha
-            type=raw,value=latest
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        if: github.event_name == 'push'
-        with:
-          registry: ghcr.io
-          username: ${{ secrets.GCR_PACKAGES_USER }}
-          password: ${{ secrets.GCR_PACKAGES_TOKEN }}
-
-      - name: Build tii-px4-sitl image and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./Dockerfile.docker
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          build-args: |
-            FROM_ARTIFACTS=localhost:5000/tiiuae/px4-sitl-artifacts:latest
